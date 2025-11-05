@@ -413,8 +413,9 @@
         if (window.lucide) lucide.createIcons();
       });
 
-      // Mobile menu toggle
+      // Mobile menu toggle with debug log
       mobileButton.addEventListener('click', () => {
+        console.log('Mobile menu toggle clicked'); // Added debug
         const expanded = mobileButton.getAttribute('aria-expanded') === 'true';
         mobileButton.setAttribute('aria-expanded', String(!expanded));
         mobileMenu.classList.toggle('hidden');

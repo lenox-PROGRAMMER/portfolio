@@ -25,13 +25,13 @@ I am a passionate Full Stack Developer proficient in frontend and backend techno
 
 ## How to Use This Portfolio
 
-You can explore my projects with live demos or check out the source code on GitHub. Feel free to contact me for collaboration, job opportunities, or feedback.
+You can explore my projects with live demos or check out the source code on GitHub. Feel free to contact me for collaboration, job opportunities, or feedback i would like to get your feed back.
 
 ## Contact
 
 - Email: lenoxowino2022@gmail.com
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/yourprofile)
-- GitHub: [Your GitHub Profile](https://github.com/lenox-PROGRAMMER)
+- LinkedIn:(https://www.linkedin.com/in/yourprofile)
+- GitHub: (https://github.com/lenox-PROGRAMMER)
 
-Thank you for visiting my portfolio!
+Thank you for visiting my portfolio welcom again!
 

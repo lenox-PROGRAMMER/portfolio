@@ -10,8 +10,214 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Lucide Icons (UMD) -->
   <script src="https://unpkg.com/lucide@0.257.0/dist/lucide.js"></script>
+
   <style>
-    /* ... KEEP ALL YOUR STYLE CONTENT UNCHANGED ... */
+    :root {
+      --brand: #6366f1; /* indigo-500 */
+      --bg-light: #f8fafc;
+      --bg-dark: #0b1220;
+    }
+
+    html, body { height: 100%; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background-color: var(--bg-light);
+      color: #0f172a; /* slate-900 */
+      -webkit-touch-callout: none; /* reduce accidental selection on mobile */
+      touch-action: manipulation;
+    }
+    .dark body { background-color: var(--bg-dark); color: #e6eef8; }
+
+    /* Focus-visible for keyboard users */
+    :where(button, a, input, textarea):focus-visible {
+      outline: 3px solid rgba(99,102,241,0.25);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    .hero-inner { max-width: 820px; margin-inline: auto; }
+
+    i[data-lucide] { display: inline-block; vertical-align: middle; }
+
+    .card-hover { transition: transform .28s ease, box-shadow .28s ease; }
+    .card-hover:hover { transform: translateY(-6px); }
+
+    /* Sliding word animation */
+    .rotator { display: inline-block; height: 1.2em; vertical-align: middle; position: relative; overflow: hidden; }
+    .rotator .word { position: absolute; left: 0; right: 0; opacity: 0; transform: translateY(100%); transition: transform .45s cubic-bezier(.2,.9,.2,1), opacity .45s; padding: 0 .2rem; border-radius: .375rem; }
+    .rotator .word.show { opacity: 1; transform: translateY(0); }
+    .rotator .word.hide { opacity: 0; transform: translateY(-100%); }
+
+    /* Skill highlight */
+    .skill { transition: transform .2s ease, background-color .25s ease, color .25s ease; }
+    .skill.highlight { transform: translateY(-6px) scale(1.03); background: linear-gradient(90deg, rgba(99,102,241,0.12), rgba(99,102,241,0.06)); box-shadow: 0 6px 18px rgba(99,102,241,0.06); }
+
+    /* Animated name gradient */
+    .animated-name {
+      background: linear-gradient(90deg, #ef4444, #f97316, #f59e0b, #10b981, #06b6d4, #8b5cf6, #6366f1);
+      background-size: 400% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+      transition: filter .2s;
+      font-weight: 700;
+    }
+    @keyframes nameShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .animated-name.animate { animation: nameShift 6s linear infinite; }
+
+    /* Initials avatar */
+    .initials {
+      width: 224px;
+      height: 224px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      box-shadow: 0 8px 30px rgba(13,16,40,0.08);
+      margin: 0 auto;
+    }
+
+    /* About card and slide-in animations */
+    .about-box {
+      background: linear-gradient(120deg, rgba(99,102,241,0.18) 0%, rgba(16,185,129,0.10) 100%);
+      border-radius: 1.2rem;
+      box-shadow: 0 0 32px 0 rgba(99,102,241,0.18), 0 0 0 8px rgba(99,102,241,0.08) inset;
+      padding: 1.2rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .about-box::before {
+      content: '';
+      position: absolute;
+      top: -40px; left: -40px; right: -40px; bottom: -40px;
+      background: radial-gradient(circle, rgba(236,72,153,0.18) 0%, rgba(99,102,241,0.08) 80%, transparent 100%);
+      opacity: 0.7;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(12px);
+      transition: opacity .6s;
+    }
+    .about-box.slide { opacity: 0; transform: translateY(32px) scale(0.98); transition: transform .8s cubic-bezier(.2,.9,.2,1), opacity .8s; }
+    .about-box.slide.in { opacity: 1; transform: translateY(0) scale(1); }
+    .about-box:hover::before { opacity: 1; }
+    .about-box:hover { box-shadow: 0 0 48px 0 rgba(236,72,153,0.18), 0 0 0 12px rgba(99,102,241,0.12) inset; }
+    .about-box h3 { color: #6366f1; }
+
+    .slide[data-order="1"] { transition-delay: 0.05s; }
+    .slide[data-order="2"] { transition-delay: 0.18s; }
+    .slide[data-order="3"] { transition-delay: 0.32s; }
+    .slide[data-order="4"] { transition-delay: 0.46s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rotator .word { transition: none; }
+      .card-hover { transition: none; }
+      .skill { transition: none; }
+      .animated-name.animate { animation: none; }
+      .slide { transition: none; opacity: 1; transform: none; }
+    }
+
+    /* Command Bar Animation & Style */
+    @keyframes cmdGradient {
+      0% { background-position: 0% 50%; border-color: #6366f1; }
+      50% { background-position: 100% 50%; border-color: #ef4444; }
+      100% { background-position: 0% 50%; border-color: #6366f1; }
+    }
+    .cmd-animated {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4, #10b981, #f59e0b, #f97316, #ef4444);
+      background-size: 400% 100%;
+      color: white;
+      border-radius: 1.2rem;
+      border-width: 4px;
+      border-style: solid;
+      border-image: linear-gradient(90deg, #6366f1, #ef4444, #10b981, #f59e0b) 1;
+      animation: cmdGradient 6s linear infinite;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    }
+    #cmdPopup {
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #06b6d4, #10b981, #f59e0b, #f97316, #ef4444);
+      background-size: 400% 100%;
+      color: white;
+      border-radius: 1.2rem;
+      border-width: 4px;
+      border-style: solid;
+      border-image: linear-gradient(90deg, #6366f1, #ef4444, #10b981, #f59e0b) 1;
+      animation: cmdGradient 6s linear infinite;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.18);
+    }
+    #cmdBar input::placeholder { color: #e0e7ff; opacity: 1; }
+    #cmdBar input:focus { outline: none; box-shadow: 0 0 0 4px #6366f1; }
+
+    /* Fullstack banner (bottom) */
+    .fullstack-banner {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 99999;
+      width: 100vw;
+      height: 3.2rem;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 30%, #06b6d4 60%, #ef4444 100%);
+      box-shadow: 0 -2px 16px rgba(99,102,241,0.12);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      gap: 0.5rem;
+      padding-inline: 1rem;
+    }
+    .fullstack-text {
+      display: inline-block;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: linear-gradient(90deg, #ef4444, #f97316, #f59e0b, #10b981, #06b6d4, #8b5cf6, #6366f1);
+      background-size: 400% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      white-space: nowrap;
+      animation: fullstack-move 18s linear infinite, fullstack-gradient 6s linear infinite;
+    }
+    @keyframes fullstack-move { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100vw); } }
+    @keyframes fullstack-gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+    /* small-screen adjustments */
+    @media (max-width: 1024px) {
+      .initials { width: 180px; height: 180px; font-size: 40px; }
+      .about-box { padding: 1rem 1.2rem; }
+    }
+
+    @media (max-width: 640px) {
+      header nav .container { padding-left: 1rem; padding-right: 1rem; }
+      .hero-inner { padding-left: 1rem; padding-right: 1rem; }
+      .animated-name { font-size: 1.05rem; }
+      h1 { font-size: 1.75rem; }
+      .initials { width: 140px; height: 140px; font-size: 34px; }
+      .about-box { padding: .9rem 1rem; }
+      /* make command bar full-width centered on small screens */
+      #cmdBar { left: 50%; right: auto; transform: translateX(-50%); bottom: 1rem; width: calc(100% - 2rem); max-width: 720px; }
+      #cmdBar input { width: 100% !important; padding-left: 1rem; padding-right: 1rem; font-size: 1rem; }
+      #cmdPopup { max-width: 100% !important; width: 100%; box-sizing: border-box; margin-top: .5rem; }
+      /* reduce banner height on small screens and hide long text overflow */
+      .fullstack-banner { height: 2.4rem; padding-inline: 0.6rem; }
+      .fullstack-text { font-size: 0.95rem; animation-duration: 14s; }
+      .fullstack-banner .banner-close { display: inline-flex; }
+    }
+
+    /* very small screens (narrow phones) - hide the banner to avoid blocking content */
+    @media (max-width: 420px) {
+      .fullstack-banner { display: none; }
+      main { padding-bottom: 1.25rem; }
+      #cmdBar { bottom: 0.8rem; width: calc(100% - 1.5rem); }
+    }
+
+    /* ensure mobile menu links are comfortable to tap */
+    #mobileMenu a { padding-top: .9rem; padding-bottom: .9rem; font-size: 1rem; }
+    /* ensure large clickable areas on project actions */
+    .project-actions a { padding: .35rem .5rem; display: inline-flex; align-items:center; gap:.4rem; }
   </style>
 </head>
 <body class="text-slate-800 dark:text-slate-200">
@@ -25,7 +231,6 @@
 
       <div class="hidden md:flex space-x-6 items-center">
         <a href="#about" class="text-slate-600 dark:text-slate-300 hover:text-[var(--brand)] transition">About</a>
-        <a href="#experience" class="text-slate-600 dark:text-slate-300 hover:text-[var(--brand)] transition">Experience</a>
         <a href="#skills" class="text-slate-600 dark:text-slate-300 hover:text-[var(--brand)] transition">Skills</a>
         <a href="#projects" class="text-slate-600 dark:text-slate-300 hover:text-[var(--brand)] transition">Projects</a>
         <a href="#contact" class="bg-[var(--brand)] hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition">Contact</a>
@@ -42,9 +247,9 @@
         </button>
       </div>
     </nav>
+
     <div id="mobileMenu" class="md:hidden hidden bg-white dark:bg-slate-900/80 border-t border-slate-200 dark:border-slate-800" role="menu" aria-hidden="true">
       <a href="#about" class="block px-4 py-3 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">About</a>
-      <a href="#experience" class="block px-4 py-3 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Experience</a>
       <a href="#skills" class="block px-4 py-3 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Skills</a>
       <a href="#projects" class="block px-4 py-3 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Projects</a>
       <a href="#contact" class="block px-4 py-3 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Contact</a>
@@ -56,31 +261,47 @@
 
     <!-- Hero Section -->
     <section id="home" class="text-center py-16 md:py-24">
-      <!-- ... Unchanged ... -->
+      <div class="mx-auto hero-inner">
+        <h1 class="text-3xl md:text-6xl font-bold mb-4 leading-tight">Hi, I'm <span id="heroName" class="animated-name">Lenox Programmer</span></h1>
+        <p class="text-lg md:text-2xl text-slate-600 dark:text-slate-300 mb-6">
+          I build
+          <span class="rotator" aria-live="polite" aria-atomic="true">
+            <span class="word" aria-hidden="true"></span>
+          </span>
+          web apps that delight.
+        </p>
+        <div class="flex justify-center space-x-3 md:space-x-4 flex-wrap">
+          <a href="#projects" class="bg-[var(--brand)] hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-base md:text-lg font-medium transition">View Projects</a>
+          <a href="#contact" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-2.5 rounded-lg text-base md:text-lg font-medium transition">Get In Touch</a>
+        </div>
+      </div>
     </section>
 
     <!-- About Me Section -->
     <section id="about" class="py-12 md:py-16">
-      <!-- ... Unchanged ... -->
-    </section>
-
-    <!-- Experience Section -->
-    <section id="experience" class="py-12 md:py-16 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
-      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">Experience</h2>
-      <div class="flex flex-col md:flex-row gap-8 md:gap-12 items-center md:items-start justify-center">
-        <div class="md:w-2/3 mx-auto">
-          <div class="about-box slide in" data-order="1">
-            <h3 class="font-semibold mb-2 flex items-center gap-2">
-              <i data-lucide="briefcase" class="w-5 h-5"></i> Red Cross
-            </h3>
-            <p class="text-slate-700 dark:text-slate-300 mb-1"><strong>Role:</strong> Data Entry &amp; Data Documentation</p>
-            <p class="text-slate-600 dark:text-slate-400 mb-2"><strong>Duration:</strong> Jan 2024 – Sep 2024</p>
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">About Me</h2>
+      <div class="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+        <div class="md:w-1/3 mb-4 md:mb-0">
+          <div class="initials" aria-hidden="true">LP</div>
+        </div>
+        <div class="md:w-2/3 flex flex-col gap-4">
+          <div class="about-box slide" data-order="1">
+            <strong class="text-lg">Lenox Programmer</strong> — a full-stack developer focused on building clean, reliable, and accessible web applications. I work across front-end and back-end to deliver complete solutions.
+          </div>
+          <div class="about-box slide" data-order="2">
+            My toolkit includes React, Node.js, Express, PostgreSQL/Supabase, and Python for scripting and data tasks. I value clear UX, automated testing, and maintainable code.
+          </div>
+          <div class="about-box slide" data-order="3">
+            <h3 class="font-semibold mb-2">What I build</h3>
             <ul class="list-disc pl-5 text-slate-700 dark:text-slate-300">
-              <li>Accurately entered and updated large amounts of data related to humanitarian activities</li>
-              <li>Compiled, cleaned, and validated detailed reports for data-driven decision making</li>
-              <li>Collaborated with diverse teams to ensure quality and confidentiality of information</li>
-              <li>Gained real-world experience in documentation best practices and workflow optimization</li>
+              <li>School management systems and staff portals</li>
+              <li>Todo & productivity apps</li>
+              <li>Project trackers and team tools</li>
+              <li>Utility tools and browser games</li>
             </ul>
+          </div>
+          <div class="about-box slide" data-order="4">
+            I'm actively looking for opportunities to collaborate on projects that make an impact. When not coding I enjoy hiking and photography — both keep my creativity fresh.
           </div>
         </div>
       </div>
@@ -88,38 +309,362 @@
 
     <!-- Skills Section -->
     <section id="skills" class="py-10 md:py-16 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
-      <!-- ... Unchanged ... -->
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">My Tech Stack</h2>
+      <div id="skillsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 px-6 pb-6">
+        <!-- JS populates skills -->
+      </div>
     </section>
 
     <!-- Projects Section -->
     <section id="projects" class="py-10 md:py-16">
-      <!-- ... Unchanged ... -->
+      <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12">My Projects</h2>
+      <div id="projectsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- JS injects projects -->
+      </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="py-8 md:py-12 text-center bg-white dark:bg-slate-900 rounded-xl shadow-lg">
-      <!-- ... Unchanged ... -->
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Get In Touch</h2>
+      <p class="text-base md:text-lg text-slate-600 dark:text-slate-300 mb-4 max-w-2xl mx-auto">I'm currently seeking new opportunities and would love to hear from you. Whether you have a question or just want to connect, feel free to reach out!</p>
+
+      <div class="flex justify-center items-center gap-3 mb-4 flex-col sm:flex-row">
+        <a href="mailto:your.email@example.com" class="inline-block bg-[var(--brand)] hover:bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-base font-medium transition">
+          <i data-lucide="mail" class="w-4 h-4 mr-2 inline-block"></i>
+          Email
+        </a>
+        <a href="tel:+254701762037" class="inline-block bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 px-5 py-2.5 rounded-lg text-base font-medium transition">
+          <i data-lucide="phone" class="w-4 h-4 mr-2 inline-block"></i>
+          +254 701 762 037
+        </a>
+        <a href="https://github.com/lenox-PROGRAMMER" target="_blank" class="inline-block text-slate-500 dark:text-slate-300 hover:text-[var(--brand)] transition">
+          <i data-lucide="github" class="w-5 h-5 mr-2 inline-block"></i>
+          GitHub
+        </a>
+      </div>
+
+      <div class="flex justify-center space-x-6">
+        <a href="https://github.com/lenox-PROGRAMMER" target="_blank" class="text-slate-500 dark:text-slate-300 hover:text-[var(--brand)] transition" aria-label="GitHub">
+          <i data-lucide="github" class="w-6 h-6"></i>
+        </a>
+        <a href="https://linkedin.com/in/your-username" target="_blank" class="text-slate-500 dark:text-slate-300 hover:text-[var(--brand)] transition" aria-label="LinkedIn">
+          <i data-lucide="linkedin" class="w-6 h-6"></i>
+        </a>
+        <a href="https://x.com/your-x-username" target="_blank" class="text-black dark:text-white hover:text-gray-700 transition" aria-label="X (Twitter)">
+          <i data-lucide="twitter" class="w-6 h-6"></i>
+        </a>
+        <a href="https://wa.me/254701762037" target="_blank" class="text-green-600 dark:text-green-400 hover:text-green-700 transition" aria-label="WhatsApp">
+          <i data-lucide="message-circle" class="w-6 h-6"></i>
+        </a>
+      </div>
     </section>
+
   </main>
 
   <!-- Footer -->
   <footer class="py-6 mt-10 border-t border-slate-200 dark:border-slate-800">
-    <!-- ... Unchanged ... -->
+    <div class="container mx-auto max-w-6xl px-4 text-center text-slate-500 dark:text-slate-400">
+      <p>&copy; <span id="currentYear"></span> Lenox Programmer. All rights reserved.</p>
+    </div>
   </footer>
 
   <!-- Fullstack banner (dismissible) -->
   <div class="fullstack-banner" id="fullstackBanner" role="region" aria-label="Fullstack banner">
-    <!-- ... Unchanged ... -->
+    <span class="fullstack-text" id="fullstackText">Lenox Programmer — Fullstack Developer  •  Building Modern Web Experiences  •  React • Node.js • Python • PostgreSQL • Git</span>
+    <button class="ml-auto banner-close hidden md:inline-flex p-2 rounded-md text-white/90 hover:bg-white/10" id="bannerClose" aria-label="Close banner" title="Close">
+      <i data-lucide="x" class="w-4 h-4"></i>
+    </button>
   </div>
 
   <!-- Command Bar -->
   <div id="cmdBar" style="position:fixed;bottom:2rem;right:2rem;z-index:9999;">
-    <!-- ... Unchanged ... -->
+    <input id="cmdInput" type="text" placeholder="Type a command (e.g. skills)" class="cmd-animated px-6 py-3 text-lg rounded-2xl border-4 border-transparent shadow-2xl focus:outline-none focus:ring-4 focus:ring-indigo-400 font-bold" style="width:340px;">
+    <div id="cmdPopup" class="hidden mt-3 px-4 py-3 text-sm rounded-2xl shadow-2xl border-4 border-transparent font-semibold" style="max-width:400px;"></div>
   </div>
 
   <!-- JavaScript for animations, dark mode, mobile menu, icons -->
   <script>
-    // ... Your JavaScript unchanged except icons will auto-render for new sections ...
+    document.addEventListener('DOMContentLoaded', () => {
+      // render lucide icons
+      if (window.lucide) lucide.createIcons();
+
+      const htmlEl = document.documentElement;
+      const darkToggle = document.getElementById('darkModeToggle');
+      const mobileButton = document.getElementById('mobileMenuButton');
+      const mobileMenu = document.getElementById('mobileMenu');
+      const mainEl = document.getElementById('mainContent');
+      const banner = document.getElementById('fullstackBanner');
+      const bannerClose = document.getElementById('bannerClose');
+
+      // Initialize theme from localStorage or system
+      const preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && preferDark)) {
+        htmlEl.classList.add('dark');
+        darkToggle.setAttribute('aria-pressed', 'true');
+      } else {
+        htmlEl.classList.remove('dark');
+        darkToggle.setAttribute('aria-pressed', 'false');
+      }
+
+      darkToggle.addEventListener('click', () => {
+        const isDark = htmlEl.classList.toggle('dark');
+        localStorage.theme = isDark ? 'dark' : 'light';
+        darkToggle.setAttribute('aria-pressed', String(isDark));
+        if (window.lucide) lucide.createIcons();
+      });
+
+      // Mobile menu toggle with debug log
+      mobileButton.addEventListener('click', () => {
+        console.log('Mobile menu toggle clicked'); // Added debug
+        const expanded = mobileButton.getAttribute('aria-expanded') === 'true';
+        mobileButton.setAttribute('aria-expanded', String(!expanded));
+        mobileMenu.classList.toggle('hidden');
+        mobileMenu.setAttribute('aria-hidden', String(expanded));
+      });
+
+      // Close mobile menu when clicking a link
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          mobileButton.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Set current year in footer
+      document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+      /* ------------------------- Rotator ------------------------- */
+      const rotatorEl = document.querySelector('.rotator');
+      const wordEl = rotatorEl.querySelector('.word');
+      const phrases = [
+        {txt: 'school management systems', color: '#ef4444'},
+        {txt: 'to-do apps', color: '#f97316'},
+        {txt: 'project trackers', color: '#f59e0b'},
+        {txt: 'workers management tools', color: '#10b981'},
+        {txt: 'security demos (ethics-first)', color: '#06b6d4'},
+        {txt: 'utility tools & games', color: '#8b5cf6'},
+        {txt: 'databases & APIs', color: '#6366f1'}
+      ];
+
+      let current = 0;
+      let isAnimating = false;
+
+      function showNextWord() {
+        if (isAnimating) return;
+        isAnimating = true;
+        const next = (current + 1) % phrases.length;
+        const newEl = document.createElement('span');
+        newEl.className = 'word';
+        newEl.textContent = phrases[next].txt;
+        newEl.style.color = phrases[next].color;
+        rotatorEl.appendChild(newEl);
+
+        requestAnimationFrame(() => {
+          const visible = rotatorEl.querySelectorAll('.word');
+          visible.forEach((el, idx) => {
+            if (idx < visible.length - 1) {
+              el.classList.remove('show');
+              el.classList.add('hide');
+            }
+          });
+          newEl.classList.add('show');
+
+          setTimeout(() => {
+            const words = rotatorEl.querySelectorAll('.word');
+            words.forEach((el, idx) => {
+              if (idx < words.length - 1) el.remove();
+            });
+            current = next;
+            isAnimating = false;
+          }, 520);
+        });
+      }
+
+      // initialize first word
+      wordEl.textContent = phrases[0].txt;
+      wordEl.style.color = phrases[0].color;
+      wordEl.classList.add('show');
+
+      const rotateInterval = 2200;
+      let rotateTimer = setInterval(showNextWord, rotateInterval);
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced) clearInterval(rotateTimer);
+      rotatorEl.addEventListener('mouseenter', () => clearInterval(rotateTimer));
+      rotatorEl.addEventListener('mouseleave', () => rotateTimer = setInterval(showNextWord, rotateInterval));
+
+      /* ------------------------- Skills population & animation ------------------------- */
+      const skills = ['Python','HTML','CSS','JavaScript','Node.js','React','Express','PostgreSQL','Supabase','MySQL','NoSQL','Git','GitHub'];
+      const skillsGrid = document.getElementById('skillsGrid');
+
+      skills.forEach((s) => {
+        const div = document.createElement('div');
+        div.className = 'text-center';
+        const badge = document.createElement('div');
+        badge.className = 'skill bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 px-3 py-2 rounded-lg shadow-sm inline-block w-full';
+        badge.innerHTML = `<p class="text-base md:text-lg font-medium">${s}</p>`;
+        div.appendChild(badge);
+        skillsGrid.appendChild(div);
+      });
+
+      const skillEls = Array.from(document.querySelectorAll('#skillsGrid .skill'));
+      let skillIndex = 0;
+      let skillTimer = null;
+      function cycleSkills() {
+        skillEls.forEach(el => el.classList.remove('highlight'));
+        if (!skillEls[skillIndex]) return;
+        skillEls[skillIndex].classList.add('highlight');
+        skillIndex = (skillIndex + 1) % skillEls.length;
+      }
+      if (!prefersReduced && skillEls.length) {
+        cycleSkills();
+        skillTimer = setInterval(cycleSkills, 1000);
+        skillEls.forEach(el => {
+          el.addEventListener('mouseenter', () => { el.classList.add('highlight'); clearInterval(skillTimer); });
+          el.addEventListener('mouseleave', () => { skillTimer = setInterval(cycleSkills, 1000); });
+        });
+      }
+
+      /* ------------------------- Projects population ------------------------- */
+      const projects = [
+        {title: 'School Management System', desc: 'A full-featured school admin portal for managing students, teachers, attendance and grades.', tags: ['React','Node.js','PostgreSQL']},
+        {title: 'Todo List', desc: 'A clean, responsive todo app with persistent storage and tagging.', tags: ['React','Node.js']},
+        {title: 'Project Tracker', desc: 'Kanban-style tracker to manage tasks and sprints for small teams.', tags: ['React','Express','Supabase']},
+        {title: 'Workers Management System', desc: 'Manage staff, shifts and payroll with role-based access control.', tags: ['Node.js','MySQL']},
+        {title: 'KyLogger (research demo)', desc: 'Security research demo built for education and ethical testing only.', tags: ['Python'], note: 'For ethical research only' },
+        {title: 'Password Cracker (research demo)', desc: 'A demonstration of password strength testing; not for malicious use.', tags: ['Python'], note: 'Ethical/educational only' },
+        {title: 'Calculator', desc: 'A lightweight multipurpose calculator with history and keyboard shortcuts.', tags: ['JavaScript']},
+        {title: 'Madlibs Game', desc: 'A fun interactive Madlibs word game for the browser.', tags: ['HTML','CSS','JavaScript']}
+      ];
+
+      const projectsGrid = document.getElementById('projectsGrid');
+      projects.forEach(p => {
+        const art = document.createElement('article');
+        art.className = 'bg-white dark:bg-slate-900 rounded-lg shadow-lg overflow-hidden card-hover';
+        art.innerHTML = `
+          <div class="w-full h-44 md:h-48 bg-slate-200 dark:bg-slate-800 overflow-hidden">
+            <img src="https://placehold.co/800x480/334155/e2e8f0?text=${encodeURIComponent(p.title)}" alt="${p.title} screenshot" class="w-full h-full object-cover">
+          </div>
+          <div class="p-4 md:p-6">
+            <h3 class="text-xl md:text-2xl font-bold mb-2">${p.title}</h3>
+            <p class="text-slate-600 dark:text-slate-300 mb-3 text-sm md:text-base">${p.desc}${p.note ? ' — ' + p.note : ''}</p>
+            <div class="flex flex-wrap gap-2 mb-3">${p.tags.map(t => `<span class="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-xs md:text-sm font-medium px-2.5 py-0.5 rounded-full">${t}</span>`).join('')}</div>
+            <div class="flex space-x-3 project-actions">
+              <a href="https://github.com/lenox-PROGRAMMER" target="_blank" class="flex items-center text-[var(--brand)] hover:underline">
+                <i data-lucide="github" class="w-4 h-4 mr-1"></i> GitHub
+              </a>
+              <a href="#" target="_blank" class="flex items-center text-[var(--brand)] hover:underline">
+                <i data-lucide="external-link" class="w-4 h-4 mr-1"></i> Live Demo
+              </a>
+            </div>
+          </div>
+        `;
+        projectsGrid.appendChild(art);
+      });
+
+      // re-render icons after dynamic injection
+      if (window.lucide) lucide.createIcons();
+
+      // Start name animations if user allows motion
+      const animatedEls = document.querySelectorAll('.animated-name');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce) animatedEls.forEach(el => el.classList.add('animate'));
+
+      /* ------------------------- About slide-in stagger ------------------------- */
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const aboutSection = document.getElementById('about');
+      const aboutSlides = Array.from(document.querySelectorAll('#about .slide'));
+      if (!reduceMotion && aboutSlides.length) {
+        const observer = new window.IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              aboutSlides.forEach((el, i) => {
+                setTimeout(() => el.classList.add('in'), 120 + i * 180);
+              });
+              observer.disconnect(); // Only trigger once
+            }
+          });
+        }, { threshold: 0.2 });
+        observer.observe(aboutSection);
+      } else {
+        aboutSlides.forEach(el => el.classList.add('in'));
+      }
+
+      /* ------------------------- Command Bar Logic ------------------------- */
+      const cmdInput = document.getElementById('cmdInput');
+      const cmdPopup = document.getElementById('cmdPopup');
+      const skillsList = skills.slice();
+      const projectsList = projects.map(p => p.title);
+      const contactInfo = `Phone: +254701762037<br>Email: lenoxowino2022@gmail.com<br>GitHub: <a href='https://github.com/lenox-PROGRAMMER' target='_blank'>lenox-PROGRAMMER</a>`;
+      const aboutInfo = `Lenox Programmer — full-stack developer. I build web apps, tools, and games using modern tech.`;
+      const helpInfo = `Try commands: <b>skills</b>, <b>projects</b>, <b>contact</b>, <b>about</b>, <b>help</b>.`;
+
+      function showPopup(html) {
+        cmdPopup.innerHTML = html;
+        cmdPopup.classList.remove('hidden');
+      }
+      function hidePopup() {
+        cmdPopup.classList.add('hidden');
+      }
+      cmdInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          const val = cmdInput.value.trim().toLowerCase();
+          if (val === 'skills') showPopup(`<b>Skills:</b><br>${skillsList.join(', ')}`);
+          else if (val === 'projects') showPopup(`<b>Projects:</b><br>${projectsList.join('<br>')}`);
+          else if (val === 'contact') showPopup(`<b>Contact:</b><br>${contactInfo}`);
+          else if (val === 'about') showPopup(`<b>About:</b><br>${aboutInfo}`);
+          else if (val === 'help' || val === '?') showPopup(helpInfo);
+          else showPopup(`Unknown command. ${helpInfo}`);
+        } else if (e.key === 'Escape') hidePopup();
+      });
+      cmdInput.addEventListener('focus', () => hidePopup());
+      document.addEventListener('click', e => {
+        const cmdBar = document.getElementById('cmdBar');
+        if (!cmdBar.contains(e.target)) hidePopup();
+      });
+
+      /* ------------------------- Banner behavior & layout adjustments ------------------------- */
+      function adjustForBanner() {
+        // if banner hidden via CSS (very small screens), don't add padding
+        const computed = window.getComputedStyle(banner);
+        if (computed.display === 'none') {
+          mainEl.style.paddingBottom = ''; // fallback to original padding
+        } else {
+          // add safe bottom padding to avoid banner overlaying content
+          const extra = banner.offsetHeight + 18;
+          mainEl.style.paddingBottom = extra + 'px';
+        }
+      }
+      adjustForBanner();
+      window.addEventListener('resize', adjustForBanner);
+
+      // allow user to dismiss the banner (persisted in session storage)
+      if (sessionStorage.getItem('bannerHidden') === 'true') {
+        banner.style.display = 'none';
+        adjustForBanner();
+      }
+      bannerClose?.addEventListener('click', () => {
+        banner.style.display = 'none';
+        sessionStorage.setItem('bannerHidden', 'true');
+        adjustForBanner();
+      });
+
+      // Accessibility: allow closing banner with keyboard when focused
+      bannerClose?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          bannerClose.click();
+        }
+      });
+
+      // Tidy up ARIA on load if mobile shows banner close button
+      if (window.matchMedia('(max-width:640px)').matches) {
+        bannerClose?.classList.remove('hidden');
+      }
+
+    }); // DOMContentLoaded
   </script>
 </body>
 </html>
+ kindly help me add expirience , i have work at red cross as someone who does data enry and data documentation,
+Copilot said: To add your experience at Red Cross
